@@ -31,6 +31,78 @@ const char* fragmentShaderSource = R"(
 	}
 )";
 
+// Creates a new vertex array object with vertex data
+unsigned int createVAO(float* vertexData, int numVertices)
+{
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	// Define a new buffer id
+	unsigned int vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	// Allocate space for + send vertex data to GPU
+	glBufferData(GL_ARRAY_BUFFER, numVertices, vertexData, GL_STATIC_DRAW);
+
+	// Define position attritube (3 floats)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
+	glEnableVertexAttribArray(0);
+
+	return vao;
+}
+
+// Creates a new shader of a given type: GL_VERTEX_SHADER, GL_FRAGMENT_SHADER
+// Returns id of the shader object
+unsigned int createShader(GLenum shaderType, const char* sourceCode)
+{
+	// Create a new vertex shader object
+	unsigned int shader = glCreateShader(shaderType);
+	// Supply the shader object with source code
+	glShaderSource(shader, 1, &sourceCode, NULL);
+	// Compile the shader object
+	glCompileShader(shader);
+
+	int success;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		char infoLog[512];
+		glGetShaderInfoLog(shader, 512, NULL, infoLog);
+		printf("Failed to compile shader: %s", infoLog);
+	};
+
+	return shader;
+}
+
+// Creates a new shader program with vertex + fragment stages
+// Returns id of new shader program if successful, 0 if failed
+unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource)
+{
+	unsigned int vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSource);
+	unsigned int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+
+	unsigned int shaderProgram = glCreateProgram();
+	// Attach each stage
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	// Link all the stage together
+	glLinkProgram(shaderProgram);
+
+	// Check for linking errors
+	int success;
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		char infoLog[512];
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		printf("Failed to link shader program: %s", infoLog);
+	}
+	// The linked program now contains our compiled code, so we can delete these intermediate objects
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+	return shaderProgram;
+}
+
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -50,35 +122,8 @@ int main() {
 		return 1;
 	}
 
-	unsigned int vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	// Define a new buffer id
-	unsigned int vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	// Allocate space for + send vertex data to GPU
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// Define position attritube (3 floats)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
-	glEnableVertexAttribArray(0);
-
-	// Create a new vertex shader object
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	// Supply the shader object with source code
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	// Compile the shader object
-	glCompileShader(vertexShader);
-
-	int success;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		char infoLog[512];
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		printf("Failed to compile shader: %s", infoLog);
-	};
+	unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);
+	unsigned int vao = createVAO(vertices, 3);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -86,7 +131,9 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Draw calls here
+		glUseProgram(shader);
 		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		glfwSwapBuffers(window);
 	}

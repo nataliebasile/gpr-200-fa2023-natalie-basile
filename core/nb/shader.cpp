@@ -57,8 +57,8 @@ namespace natalie {
 	// Shader class
 	Shader::Shader(const std::string& vertexShader, const std::string& fragmentShader)
 	{
-		std::string vertexShaderSource = natalie::loadShaderSourceFromFile("assets/vertexShader.vert");
-		std::string fragmentShaderSource = natalie::loadShaderSourceFromFile("assets/fragmentShader.frag");
+		std::string vertexShaderSource = natalie::loadShaderSourceFromFile(vertexShader.c_str());
+		std::string fragmentShaderSource = natalie::loadShaderSourceFromFile(fragmentShader.c_str());
 		m_id = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
 	}
 	void Shader::use()
@@ -76,6 +76,14 @@ namespace natalie {
 	}
 	void Shader::setVec2(const std::string& name, float x, float y) const
 	{
-		glUniform3f(glGetUniformLocation(m_id, name.c_str()), x, y);
+		glUniform2f(glGetUniformLocation(m_id, name.c_str()), x, y);
+	}
+	void Shader::setVec3(const std::string& name, float x, float y, float z) const
+	{
+		glUniform3f(glGetUniformLocation(m_id, name.c_str()), x, y, z);
+	}
+	void Shader::setVec4(const std::string& name, float x, float y, float z, float w) const
+	{
+		glUniform4f(glGetUniformLocation(m_id, name.c_str()), x, y, z, w);
 	}
 }

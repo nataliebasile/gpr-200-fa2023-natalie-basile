@@ -10,10 +10,9 @@
 
 #include <nb/shader.h>
 
-unsigned int createShader(GLenum shaderType, const char* sourceCode);
-unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
-unsigned int createVAO(float* vertexData, int numVertices);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+
+unsigned int createVAO(float* vertexData, int numVertices);
 
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
@@ -55,13 +54,11 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	
-
-	unsigned int shader = 
 	unsigned int vao = createVAO(vertices, 3);
 
-	glUseProgram(shader);
-	glBindVertexArray(vao);
+	natalie::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	shader.use();
+	shader.setFloat("_vao", vao);
 
 
 	while (!glfwWindowShouldClose(window)) {
@@ -70,8 +67,8 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//Set uniforms
-		glUniform3f(glGetUniformLocation(shader, "_Color"), triangleColor[0], triangleColor[1], triangleColor[2]);
-		glUniform1f(glGetUniformLocation(shader,"_Brightness"), triangleBrightness);
+		shader.setVec3("_Color", triangleColor[0], triangleColor[1], triangleColor[2]);
+		shader.setFloat("_Brightness", triangleBrightness);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 

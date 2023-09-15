@@ -48,7 +48,7 @@ int main() {
 		return 1;
 	}
 
-	//Initialize ImGUI DO NOT TOUCH
+	// Initialize ImGUI DO NOT TOUCH
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -58,21 +58,19 @@ int main() {
 
 	natalie::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 	shader.use();
-	shader.setFloat("_vao", vao);
-
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//Set uniforms
+		// Set uniforms
 		shader.setVec3("_Color", triangleColor[0], triangleColor[1], triangleColor[2]);
 		shader.setFloat("_Brightness", triangleBrightness);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		//Render UI
+		// Render UI
 		{
 			ImGui_ImplGlfw_NewFrame();
 			ImGui_ImplOpenGL3_NewFrame();
@@ -101,14 +99,14 @@ unsigned int createVAO(float* vertexData, int numVertices) {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	//Define a new buffer id
+	// Define a new buffer id
 	unsigned int vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	//Allocate space for + send vertex data to GPU.
+	// Allocate space for + send vertex data to GPU.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertices * 3, vertexData, GL_STATIC_DRAW);
 
-	//Position attribute
+	// Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
 	glEnableVertexAttribArray(0);
 

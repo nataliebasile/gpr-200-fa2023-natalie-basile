@@ -10,23 +10,42 @@
 
 #include <nb/shader.h>
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height);
-
-unsigned int createVAO(float* vertexData, int numVertices);
-
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
-float vertices[9] = {
-	//x   //y  //z   
-	-0.5, -0.5, 0.0, 
-	 0.5, -0.5, 0.0,
-	 0.0,  0.5, 0.0 
+struct Vertex {
+	float x, y, z;
+	float u, v;
+};
+
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+
+unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicesData, int numIndices);
+
+Vertex vertices[4] = {
+	// x     y    z    u    v
+	{-1.0, -1.0, 0.0, 0.0, 0.0}, //bottom left
+	{ 1.0, -1.0, 0.0, 1.0, 0.0}, // bottom right
+	{ 1.0,  1.0, 0.0, 1.0, 1.0}, // top right
+	{-1.0,  1.0, 0.0, 0.0, 1.0}, // top left
+};
+
+unsigned int indices[6] = {
+	// triangle 1
+	0, 1, 2,
+	// triangle 2
+	2, 3, 0
 };
 
 float triangleColor[3] = { 1.0f, 0.5f, 0.0f };
 float triangleBrightness = 1.0f;
 bool showImGUIDemoWindow = true;
+
+float sunColor[] = { 0.9, 0.75, 0.4 };
+float skyTopColor[] = { 0.4, 0.4, 0.5 };
+float skyBotColor[] = { 0.75, 0.55, 0.4 };;
+float hillsColor[] = { 0.6, 0.7, 0.4 };
+float sunSpeed = 1.0;
 
 int main() {
 	printf("Initializing...");
@@ -54,7 +73,7 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	unsigned int vao = createVAO(vertices, 3);
+	unsigned int vao = createVAO(vertices, 4, indices, 6);
 
 	natalie::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 	shader.use();
@@ -64,11 +83,20 @@ int main() {
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Set uniforms
-		shader.setVec3("_Color", triangleColor[0], triangleColor[1], triangleColor[2]);
-		shader.setFloat("_Brightness", triangleBrightness);
+		float time = (float)glfwGetTime();
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// Set uniforms
+		shader.setVec3("sunColor", sunColor[0], sunColor[1], sunColor[2]);
+		shader.setVec3("skyTopColor", skyTopColor[0], skyTopColor[1], skyTopColor[2]);
+		shader.setVec3("skyBotColor", skyBotColor[0], skyBotColor[1], skyBotColor[2]);
+		shader.setVec3("hillsColor", hillsColor[0], hillsColor[1], hillsColor[2]);
+		// THIS SLIDER DOESN'T ACTUALLY DO ANYTHING AND I CAN'T FIGURE OUT HOW TO MAKE IT DO SOMETHING
+		shader.setFloat("_Time", time);
+		shader.setFloat("sunSpeed", sunSpeed);
+
+		shader.setVec2("iResolution", SCREEN_WIDTH, SCREEN_HEIGHT);
+
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 
 		// Render UI
 		{
@@ -78,9 +106,14 @@ int main() {
 
 			ImGui::Begin("Settings");
 			ImGui::Checkbox("Show Demo Window", &showImGUIDemoWindow);
-			ImGui::ColorEdit3("Color", triangleColor);
-			ImGui::SliderFloat("Brightness", &triangleBrightness, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Sun Color", sunColor);
+			ImGui::ColorEdit3("Top Sky Color", skyTopColor);
+			ImGui::ColorEdit3("Bottom Sky Color", skyBotColor);
+			ImGui::ColorEdit3("Hills Color", hillsColor);
+			ImGui::SliderFloat("Time", &time, 0.0f, 10.0f);
+			ImGui::SliderFloat("Sun Speed", &sunSpeed, 0.0f, 10.0f);
 			ImGui::End();
+
 			if (showImGUIDemoWindow) {
 				ImGui::ShowDemoWindow(&showImGUIDemoWindow);
 			}
@@ -94,7 +127,7 @@ int main() {
 	printf("Shutting down...");
 }
 
-unsigned int createVAO(float* vertexData, int numVertices) {
+unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicesData, int numIndices) {
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -104,11 +137,20 @@ unsigned int createVAO(float* vertexData, int numVertices) {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	// Allocate space for + send vertex data to GPU.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertices * 3, vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * numVertices, vertexData, GL_STATIC_DRAW);
+
+	unsigned int ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndices, indicesData, GL_STATIC_DRAW);
 
 	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, x));
 	glEnableVertexAttribArray(0);
+
+	// UV attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, u));
+	glEnableVertexAttribArray(1);
 
 	return vao;
 }

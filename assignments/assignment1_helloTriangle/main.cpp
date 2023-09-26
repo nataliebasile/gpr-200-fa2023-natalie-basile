@@ -12,7 +12,7 @@ float vertices[21] = {
 	//x   //y   //z  //r  //g  //b  //a
 	-0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 1.0, // Bottom left
 	 0.5, -0.5, 0.0, 0.0, 1.0, 0.0, 1.0, // Bottom right
-	 0.0,  0.5, 0.0, 0.0, 0.0, 1.0, 1.0  // Top center
+	 0.0,  0.5, 0.0, 0.0, 0.0, 1.0, 1.0  // Top centerz
 };
 
 const char* vertexShaderSource = R"(

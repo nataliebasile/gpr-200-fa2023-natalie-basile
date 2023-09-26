@@ -68,7 +68,6 @@ namespace natalie {
 	void Shader::setInt(const std::string& name, int v) const
 	{
 		glUniform1i(glGetUniformLocation(m_id, name.c_str()), v);
-
 	}
 	void Shader::setFloat(const std::string& name, float v) const
 	{

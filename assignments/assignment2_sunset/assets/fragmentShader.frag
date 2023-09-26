@@ -1,6 +1,6 @@
 #version 450
 out vec4 FragColor;
-uniform vec3 _Resolution;
+uniform vec2 _Resolution;
 uniform float _Time;
 uniform vec3 sunColor;
 uniform vec3 skyTopColor;
@@ -15,11 +15,10 @@ void main(){
     
     // Remap to [-1, 1]
     uv = uv * 2.0 - 1.0;
-    
-    // I CANT GET ASPECT RATIO TO WORK AND EVERYTHING IS STRETCHED AND I DONT KNOW WHY AHHHHHHHH
+
+    // Set resolution
     float aspectRatio = _Resolution.x / _Resolution.y;
-    //uv.x *= aspectRatio;
-    //uv.y *= _Resolution.y;
+    uv.x *= aspectRatio;
     
     // Create background
     vec3 bgColor = mix(skyTopColor, skyBotColor, 1.0 - uv.y+(sin(_Time * sunSpeed)*1.0 - 0.75));

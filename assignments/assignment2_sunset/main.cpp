@@ -94,7 +94,7 @@ int main() {
 		shader.setFloat("_Time", time);
 		shader.setFloat("sunSpeed", sunSpeed);
 
-		shader.setVec2("iResolution", SCREEN_WIDTH, SCREEN_HEIGHT);
+		shader.setVec2("_Resolution", SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 

@@ -9,11 +9,15 @@
 #include <imgui_impl_opengl3.h>
 
 #include <ew/shader.h>
+#include <nb/texture.h>
 
 struct Vertex {
 	float x, y, z;
 	float u, v;
 };
+
+// REMEMBER TO ACTIVE TEXTURE AND BIND TEXTURE
+
 
 unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned short* indicesData, int numIndices);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -60,6 +64,16 @@ int main() {
 
 	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 
+	unsigned int textureA = loadTexture("assets/bricks.jpg", GL_REPEAT, GL_LINEAR);
+	unsigned int textureB = loadTexture("assets/noise.png", GL_REPEAT, GL_LINEAR);
+
+	// Place textureA in unit 0
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureA);
+	// Place textureB in unit 1
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, textureB);
+
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
 
 	glBindVertexArray(quadVAO);
@@ -69,8 +83,11 @@ int main() {
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+
 		//Set uniforms
 		shader.use();
+		shader.setInt("_BrickTexture", 0);
+		shader.setInt("_NoiseTexture", 1);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 

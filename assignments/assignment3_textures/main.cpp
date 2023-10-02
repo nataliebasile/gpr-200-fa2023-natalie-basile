@@ -16,9 +16,6 @@ struct Vertex {
 	float u, v;
 };
 
-// REMEMBER TO ACTIVE TEXTURE AND BIND TEXTURE
-
-
 unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned short* indicesData, int numIndices);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
@@ -63,16 +60,14 @@ int main() {
 	ImGui_ImplOpenGL3_Init();
 
 	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	ew::Shader backgroundShader("assets/background.vert", "assets/background.frag");
+	ew::Shader characterShader("assets/character.vert", "assets/character.frag");
 
-	unsigned int textureA = loadTexture("assets/bricks.jpg", GL_REPEAT, GL_LINEAR);
-	unsigned int textureB = loadTexture("assets/noise.png", GL_REPEAT, GL_LINEAR);
 
-	// Place textureA in unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureA);
-	// Place textureB in unit 1
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, textureB);
+	unsigned int brickTexture = loadTexture("assets/brickTexture.png", GL_REPEAT, GL_LINEAR);
+	unsigned int puddleSlimeTexture = loadTexture("assets/puddleslime.png", GL_REPEAT, GL_LINEAR);
+	unsigned int noiseTexture = loadTexture("assets/noise.jpg", GL_REPEAT, GL_LINEAR);
+	unsigned int napstablookTexture = loadTexture("assets/Napstablook.png", GL_REPEAT, GL_NEAREST);
 
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
 
@@ -83,13 +78,45 @@ int main() {
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Draw background
+		{
+			backgroundShader.use();
 
-		//Set uniforms
-		shader.use();
-		shader.setInt("_BrickTexture", 0);
-		shader.setInt("_NoiseTexture", 1);
+			// Bind background textures
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, brickTexture);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, puddleSlimeTexture);
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, noiseTexture);
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+			// Set background shader uniforms
+			shader.setVec2("_Resolution", SCREEN_WIDTH, SCREEN_HEIGHT);
+			shader.setFloat("_Time", (float)glfwGetTime());
+			shader.setInt("_BrickTexture", 0);
+			shader.setInt("_PuddleSlimeTexture", 1);
+			shader.setInt("_NoiseTexture", 2);
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+		}
+
+		// Draw character
+		{
+			/*
+			characterShader.use();
+
+			// Bind character textures
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, napstablookTexture);
+
+			// Bind character shader uniforms
+			shader.setFloat("_Time", (float)glfwGetTime());
+			shader.setInt("_NapstablookTexture", 0);
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+			*/
+		}
+
 
 		//Render UI
 		{

@@ -5,8 +5,8 @@
 unsigned int loadTexture(const char* filePath, int wrapMode, int filterMode) {
 	stbi_set_flip_vertically_on_load(true);
 
-	int width, height, numComponenets;
-	unsigned char* data = stbi_load(filePath, &width, &height, &numComponenents, 0);
+	int width, height, numComponents;
+	unsigned char* data = stbi_load(filePath, &width, &height, &numComponents, 0);
 	if (data == NULL) {
 		printf("Failed to load image %s", filePath);
 		stbi_image_free(data);

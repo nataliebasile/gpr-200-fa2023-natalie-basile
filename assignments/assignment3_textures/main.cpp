@@ -59,7 +59,7 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	//ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 	ew::Shader backgroundShader("assets/background.vert", "assets/background.frag");
 	ew::Shader characterShader("assets/character.vert", "assets/character.frag");
 
@@ -68,6 +68,9 @@ int main() {
 	unsigned int puddleSlimeTexture = loadTexture("assets/puddleslime.png", GL_REPEAT, GL_LINEAR);
 	unsigned int noiseTexture = loadTexture("assets/noise.jpg", GL_REPEAT, GL_LINEAR);
 	unsigned int napstablookTexture = loadTexture("assets/Napstablook.png", GL_REPEAT, GL_NEAREST);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
 
@@ -91,32 +94,29 @@ int main() {
 			glBindTexture(GL_TEXTURE_2D, noiseTexture);
 
 			// Set background shader uniforms
-			shader.setVec2("_Resolution", SCREEN_WIDTH, SCREEN_HEIGHT);
-			shader.setFloat("_Time", (float)glfwGetTime());
-			shader.setInt("_BrickTexture", 0);
-			shader.setInt("_PuddleSlimeTexture", 1);
-			shader.setInt("_NoiseTexture", 2);
+			backgroundShader.setVec2("_Resolution", SCREEN_WIDTH, SCREEN_HEIGHT);
+			backgroundShader.setFloat("_Time", (float)glfwGetTime());
+			backgroundShader.setInt("_BrickTexture", 0);
+			backgroundShader.setInt("_PuddleSlimeTexture", 1);
+			backgroundShader.setInt("_NoiseTexture", 2);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 		}
 
 		// Draw character
 		{
-			/*
 			characterShader.use();
 
 			// Bind character textures
-			glActiveTexture(GL_TEXTURE2);
+			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, napstablookTexture);
 
 			// Bind character shader uniforms
-			shader.setFloat("_Time", (float)glfwGetTime());
-			shader.setInt("_NapstablookTexture", 0);
+			characterShader.setFloat("_Time", (float)glfwGetTime());
+			characterShader.setInt("_CharacterTexture", 0);
 
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
-			*/
 		}
-
 
 		//Render UI
 		{

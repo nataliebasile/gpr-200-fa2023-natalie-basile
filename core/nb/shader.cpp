@@ -1,7 +1,7 @@
 #include "shader.h"
 #include "../ew/external/glad.h"
 
-namespace natalie {
+namespace nb {
 
 	std::string loadShaderSourceFromFile(const std::string& filePath) {
 		std::ifstream fstream(filePath);
@@ -57,8 +57,8 @@ namespace natalie {
 	// Shader class
 	Shader::Shader(const std::string& vertexShader, const std::string& fragmentShader)
 	{
-		std::string vertexShaderSource = natalie::loadShaderSourceFromFile(vertexShader.c_str());
-		std::string fragmentShaderSource = natalie::loadShaderSourceFromFile(fragmentShader.c_str());
+		std::string vertexShaderSource = nb::loadShaderSourceFromFile(vertexShader.c_str());
+		std::string fragmentShaderSource = nb::loadShaderSourceFromFile(fragmentShader.c_str());
 		m_id = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
 	}
 	void Shader::use()
@@ -84,5 +84,9 @@ namespace natalie {
 	void Shader::setVec4(const std::string& name, float x, float y, float z, float w) const
 	{
 		glUniform4f(glGetUniformLocation(m_id, name.c_str()), x, y, z, w);
+	}
+	void Shader::setMat4(const std::string& name, const ew::Mat4& v) const
+	{
+		glUniformMatrix4fv(glGetUniformLocation(m_id, name.c_str()), 1, GL_FALSE, &v[0][0]);
 	}
 }

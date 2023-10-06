@@ -12,11 +12,16 @@
 #include <ew/ewMath/vec3.h>
 #include <ew/procGen.h>
 
+#include <nb/shader.h>
+#include <nb/transformations.h>
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 //Square aspect ratio for now. We will account for this with projection later.
 const int SCREEN_WIDTH = 720;
 const int SCREEN_HEIGHT = 720;
+
+const int numCubes = 4;
 
 int main() {
 	printf("Initializing...");
@@ -51,7 +56,13 @@ int main() {
 	//Depth testing - required for depth sorting!
 	glEnable(GL_DEPTH_TEST);
 
-	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	nb::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	nb::Transform transforms[numCubes] = {
+		{ew::Vec3(-0.5,0.5,0)},
+		{ew::Vec3(0.5,0.5,0)},
+		{ew::Vec3(-0.5,-0.5,0)},
+		{ew::Vec3(0.5,-0.5,0)}
+	};
 	
 	//Cube mesh
 	ew::Mesh cubeMesh(ew::createCube(0.5f));
@@ -64,10 +75,11 @@ int main() {
 
 		//Set uniforms
 		shader.use();
-
-		//TODO: Set model matrix uniform
-
-		cubeMesh.draw();
+		for (int i = 0; i < numCubes; i++)
+		{
+			shader.setMat4("_ModelMatrix", transforms[i].getModelMatrix());
+			cubeMesh.draw();
+		}
 
 		//Render UI
 		{
@@ -76,6 +88,16 @@ int main() {
 			ImGui::NewFrame();
 
 			ImGui::Begin("Transform");
+			for (int i = 0; i < numCubes; i++)
+			{
+				ImGui::PushID(i);
+				if (ImGui::CollapsingHeader("Transform")) {
+					ImGui::DragFloat3("Position", &transforms[i].position.x, 0.005f);
+					ImGui::DragFloat3("Rotation", &transforms[i].rotation.x, 0.005f);
+					ImGui::DragFloat3("Scake", &transforms[i].scale.x, 0.005f);
+				}
+				ImGui::PopID();
+			}
 			ImGui::End();
 
 			ImGui::Render();

@@ -11,15 +11,18 @@
 #include <ew/shader.h>
 #include <ew/procGen.h>
 #include <ew/transform.h>
+#include <nb/camera.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 //Projection will account for aspect ratio!
-const int SCREEN_WIDTH = 1080;
-const int SCREEN_HEIGHT = 720;
+int SCREEN_WIDTH = 1080;
+int SCREEN_HEIGHT = 720;
+float ASPECT_RATIO = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 
 const int NUM_CUBES = 4;
 ew::Transform cubeTransforms[NUM_CUBES];
+nb::Camera camera;
 
 int main() {
 	printf("Initializing...");
@@ -59,6 +62,10 @@ int main() {
 	//Cube mesh
 	ew::Mesh cubeMesh(ew::createCube(0.5f));
 
+	camera.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
+	camera.nearPlane;
+	camera.farPlane;
+
 	//Cube positions
 	for (size_t i = 0; i < NUM_CUBES; i++)
 	{
@@ -79,7 +86,7 @@ int main() {
 		for (size_t i = 0; i < NUM_CUBES; i++)
 		{
 			//Construct model matrix
-			shader.setMat4("_Model", cubeTransforms[i].getModelMatrix());
+			shader.setMat4("_Model", camera.ProjectionMatrix() * camera.ViewMatrix() * cubeTransforms[i].getModelMatrix());
 			cubeMesh.draw();
 		}
 
@@ -116,5 +123,7 @@ int main() {
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	SCREEN_WIDTH = width;
+	SCREEN_HEIGHT = height;
 }
 

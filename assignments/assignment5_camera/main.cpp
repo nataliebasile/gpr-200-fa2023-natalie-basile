@@ -62,9 +62,16 @@ int main() {
 	//Cube mesh
 	ew::Mesh cubeMesh(ew::createCube(0.5f));
 
+	// Camera default settings
 	camera.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
-	camera.nearPlane;
-	camera.farPlane;
+	camera.position = ew::Vec3(0, 0, 5);
+	camera.target = ew::Vec3(0, 0, 0);
+	camera.fov = 60.0f;
+	camera.aspectRatio = ASPECT_RATIO;
+	camera.nearPlane = 0.1f;
+	camera.farPlane = 100.0f;
+	camera.orthographic = false;
+	camera.orthoSize = 6.0f;
 
 	//Cube positions
 	for (size_t i = 0; i < NUM_CUBES; i++)
@@ -78,6 +85,8 @@ int main() {
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		//Clear both color buffer AND depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//camera.aspectRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
 
 		//Set uniforms
 		shader.use();
@@ -109,6 +118,13 @@ int main() {
 				ImGui::PopID();
 			}
 			ImGui::Text("Camera");
+			ImGui::DragFloat3("Camera Position", &camera.position.x, 0.5f);
+			ImGui::DragFloat3("Camera Target", &camera.target.x, 0.5f);
+			ImGui::DragFloat("FOV", &camera.fov, 1.0f);
+			ImGui::DragFloat("Near Plane", &camera.nearPlane, 0.5f);
+			ImGui::DragFloat("Far Plane", &camera.farPlane, 0.5f);
+			ImGui::Checkbox("Orthographic", &camera.orthographic);
+			ImGui::DragFloat("Height", &camera.orthoSize);
 			ImGui::End();
 			
 			ImGui::Render();

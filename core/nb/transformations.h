@@ -105,7 +105,7 @@ namespace nb {
 		ew::Vec3 rotation = ew::Vec3(0.0f, 0.0f, 0.0f); // Euler angles (degrees)
 		ew::Vec3 scale = ew::Vec3(1.0f, 1.0f, 1.0f);
 		ew::Mat4 getModelMatrix() const {
-			return (Identity() * Translate(position) * RotateY(rotation.y) * RotateX(rotation.x) * RotateZ(rotation.z) * Scale(scale));
+			return (Identity() * nb::Translate(position) * nb::RotateY(rotation.y) * nb::RotateX(rotation.x) * nb::RotateZ(rotation.z) * nb::Scale(scale));
 		}
 	};
 }

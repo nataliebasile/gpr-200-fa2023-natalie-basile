@@ -86,7 +86,7 @@ namespace nb {
 			2 / (right - left), 0,               0,                   -((right + left) / (right - left)),
 			0,                  2 / (top - bot), 0,                   -((top + bot) / (top - bot)),
 			0,                  0,               -(2 / (far - near)), -((far + near) / (far - near)),
-			0, 0, 0, 1
+			0,                  0,               0,                   1
 		);
 	};
 	// Perspective projection

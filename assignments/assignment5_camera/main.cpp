@@ -63,7 +63,6 @@ int main() {
 	ew::Mesh cubeMesh(ew::createCube(0.5f));
 
 	// Camera default settings
-	camera.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
 	camera.position = ew::Vec3(0, 0, 5);
 	camera.target = ew::Vec3(0, 0, 0);
 	camera.fov = 60.0f;
@@ -87,6 +86,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//camera.aspectRatio = SCREEN_WIDTH / SCREEN_HEIGHT;
+		camera.aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 
 		//Set uniforms
 		shader.use();

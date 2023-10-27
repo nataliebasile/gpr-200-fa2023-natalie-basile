@@ -15,6 +15,8 @@
 #include <ew/camera.h>
 #include <ew/cameraController.h>
 
+#include <nb/procGen.h>
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
 
@@ -78,12 +80,25 @@ int main() {
 	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
-	//Create cube
+	//Create meta data
 	ew::MeshData cubeMeshData = ew::createCube(0.5f);
 	ew::Mesh cubeMesh(cubeMeshData);
+	ew::MeshData sphereMeshData = nb::createSphere(0.5f, 64);
+	ew::Mesh sphereMesh(sphereMeshData);
+	ew::MeshData cylinderMeshData = nb::createCylinder(0.5f, 0.5f, 64);
+	ew::Mesh cylinderMesh(cylinderMeshData);
+	ew::MeshData planeMeshData = nb::createPlane(0.5f, 0.5f, 5);
+	ew::Mesh planeMesh(planeMeshData);
 
 	//Initialize transforms
 	ew::Transform cubeTransform;
+	cubeTransform.position = ew::Vec3(0.0f, 0.0f, 0.0f);
+	ew::Transform sphereTransform;
+	sphereTransform.position = ew::Vec3(1.0f, 0.0f, 0.0f);
+	ew::Transform cylinderTransform;
+	cylinderTransform.position = ew::Vec3(2.0f, 0.0f, 0.0f);
+	ew::Transform planeTransform;
+	planeTransform.position = ew::Vec3(3.0f, 0.0f, 0.0f);
 
 	resetCamera(camera,cameraController);
 
@@ -117,9 +132,15 @@ int main() {
 		ew::Vec3 lightF = ew::Vec3(sinf(lightRot.y) * cosf(lightRot.x), sinf(lightRot.x), -cosf(lightRot.y) * cosf(lightRot.x));
 		shader.setVec3("_LightDir", lightF);
 
-		//Draw cube
+		//Draw meshes
 		shader.setMat4("_Model", cubeTransform.getModelMatrix());
 		cubeMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+		shader.setMat4("_Model", sphereTransform.getModelMatrix());
+		sphereMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
+		cylinderMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+		shader.setMat4("_Model", planeTransform.getModelMatrix());
+		planeMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
 		//Render UI
 		{

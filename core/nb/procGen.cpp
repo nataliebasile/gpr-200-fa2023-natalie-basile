@@ -48,6 +48,8 @@ namespace nb {
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = topY;
 			v.normal = ew::Vec3(cos(theta), 0, sin(theta));
+			v.uv.x = cos(theta);
+			v.uv.y = 1;
 			mesh.vertices.push_back(v);
 		}
 
@@ -58,6 +60,8 @@ namespace nb {
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = botY;
 			v.normal = ew::Vec3(cos(theta), 0, sin(theta));
+			v.uv.x = cos(theta);
+			v.uv.y = 0;
 			mesh.vertices.push_back(v);
 		}
 		for (int i = 0; i <= numSegments; i++) { // Bot cap ring

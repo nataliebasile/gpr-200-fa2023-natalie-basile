@@ -85,7 +85,7 @@ int main() {
 	ew::Mesh cubeMesh(cubeMeshData);
 	ew::MeshData sphereMeshData = nb::createSphere(0.3f, 5);
 	ew::Mesh sphereMesh(sphereMeshData);
-	ew::MeshData cylinderMeshData = nb::createCylinder(0.5f, 0.3f, 6);
+	ew::MeshData cylinderMeshData = nb::createCylinder(0.5f, 0.3f, 20);
 	ew::Mesh cylinderMesh(cylinderMeshData);
 	ew::MeshData planeMeshData = nb::createPlane(0.5f, 0.5f, 5);
 	ew::Mesh planeMesh(planeMeshData);

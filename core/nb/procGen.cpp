@@ -31,27 +31,73 @@ namespace nb {
 		float botY = -topY;
 		
 		mesh.vertices.push_back({ {0, topY, 0}, 0, 0}); // Top center
-		
 		float thetaStep = (2 * ew::PI) / numSegments;
-		for (int i = 0; i <= numSegments; i++) {
+		for (int i = 0; i <= numSegments; i++) { // Top cap ring
 			float theta = i * thetaStep;
 			ew::Vertex v;
 			v.pos.x = cos(theta) * radius;
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = topY;
+			v.normal = ew::Vec3(0, 1, 0);
+			mesh.vertices.push_back(v);
+		}
+		for (int i = 0; i <= numSegments; i++) { // Top side ring
+			float theta = i * thetaStep;
+			ew::Vertex v;
+			v.pos.x = cos(theta) * radius;
+			v.pos.z = sin(theta) * radius;
+			v.pos.y = topY;
+			v.normal = ew::Vec3(cos(theta), 0, sin(theta));
 			mesh.vertices.push_back(v);
 		}
 
-		for (int i = 0; i <= numSegments; i++) {
+		for (int i = 0; i <= numSegments; i++) { // Bot side ring
 			float theta = i * thetaStep;
 			ew::Vertex v;
 			v.pos.x = cos(theta) * radius;
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = botY;
+			v.normal = ew::Vec3(cos(theta), 0, sin(theta));
 			mesh.vertices.push_back(v);
 		}
+		for (int i = 0; i <= numSegments; i++) { // Bot cap ring
+			float theta = i * thetaStep;
+			ew::Vertex v;
+			v.pos.x = cos(theta) * radius;
+			v.pos.z = sin(theta) * radius;
+			v.pos.y = botY;
+			v.normal = ew::Vec3(0, 1, 0);
+			mesh.vertices.push_back(v);
+		}
+		
+		mesh.vertices.push_back({ {0, botY, 0}, 0, 0}); // Bottom center
 
-		mesh.vertices.push_back({ {0, botY, 0}, 0, 0}); // Bottom cneter
+		// Indices
+		float start = 1;
+		float center = 0;
+		for (int i = 0; i < numSegments; i++) { // Top cap indices
+			mesh.indices.push_back(start + i);
+			mesh.indices.push_back(center);
+			mesh.indices.push_back(start + i + 1);
+		}
+		float sideStart = numSegments + 1; 
+		int columns = numSegments + 1;
+		for (int i = 0; i < columns; i++) { // Side indices
+			start = sideStart + i;
+			mesh.indices.push_back(start);
+			mesh.indices.push_back(start + 1);
+			mesh.indices.push_back(start + columns);
+			mesh.indices.push_back(start + 1);
+			mesh.indices.push_back(start + columns + 1);
+			mesh.indices.push_back(start + columns);
+		}
+		center = mesh.vertices.size() - 1;
+		start = center - columns;
+		for (int i = 0; i < numSegments; i++) { // Bot cap indices
+			mesh.indices.push_back(start + i + 1);
+			mesh.indices.push_back(center);
+			mesh.indices.push_back(start + i);
+		}
 
 		return mesh;
 	}

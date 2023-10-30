@@ -56,19 +56,38 @@ namespace nb {
 		return mesh;
 	}
 
-	ew::MeshData createPlane(float width, float height, int subdivisions) {
+	ew::MeshData createPlane(float width, float height, int subDivisions) {
 		ew::MeshData mesh;
 
 		// Vertices
-		for (int row = 0; row <= subdivisions; row++) {
-			for (int col = 0; col <= subdivisions; col++) {
+		for (int row = 0; row <= subDivisions; row++) {
+			for (int col = 0; col <= subDivisions; col++) {
 				ew::Vertex v;
-				v.pos.x = width * (col / subdivisions);
+				v.pos.x = width * (col / subDivisions);
 				v.pos.y = 0;
-				v.pos.z = -height * (row / subdivisions);
+				v.pos.z = -height * (row / subDivisions);
+				v.normal = ew::Vec3(0, 1, 0);
+				v.uv.x = col / subDivisions;
+				v.uv.y = row / subDivisions;
 				mesh.vertices.push_back(v);
 			}
 		}
+
+		// Indices
+		int columns = subDivisions + 1;
+		for (int row = 0; row < subDivisions; row++) {
+			for (int col = 0; col < subDivisions; col++) {
+				float start = row * columns + col;
+				mesh.indices.push_back(start);
+				mesh.indices.push_back(start + 1);
+				mesh.indices.push_back(start + columns + 1);
+
+				mesh.indices.push_back(start + columns + 1);
+				mesh.indices.push_back(start + columns);
+				mesh.indices.push_back(start);
+			}
+		}
+
 		return mesh;
 	}
 }

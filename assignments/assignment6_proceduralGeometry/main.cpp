@@ -83,9 +83,9 @@ int main() {
 	//Create meta data
 	ew::MeshData cubeMeshData = ew::createCube(0.5f);
 	ew::Mesh cubeMesh(cubeMeshData);
-	ew::MeshData sphereMeshData = nb::createSphere(0.5f, 64);
+	ew::MeshData sphereMeshData = nb::createSphere(0.3f, 5);
 	ew::Mesh sphereMesh(sphereMeshData);
-	ew::MeshData cylinderMeshData = nb::createCylinder(0.5f, 0.5f, 64);
+	ew::MeshData cylinderMeshData = nb::createCylinder(0.5f, 0.3f, 5);
 	ew::Mesh cylinderMesh(cylinderMeshData);
 	ew::MeshData planeMeshData = nb::createPlane(0.5f, 0.5f, 5);
 	ew::Mesh planeMesh(planeMeshData);
@@ -94,11 +94,11 @@ int main() {
 	ew::Transform cubeTransform;
 	cubeTransform.position = ew::Vec3(0.0f, 0.0f, 0.0f);
 	ew::Transform sphereTransform;
-	sphereTransform.position = ew::Vec3(1.0f, 0.0f, 0.0f);
+	sphereTransform.position = ew::Vec3(1.25f, 0.0f, 0.0f);
 	ew::Transform cylinderTransform;
-	cylinderTransform.position = ew::Vec3(2.0f, 0.0f, 0.0f);
+	cylinderTransform.position = ew::Vec3(2.5f, 0.0f, 0.0f);
 	ew::Transform planeTransform;
-	planeTransform.position = ew::Vec3(3.0f, 0.0f, 0.0f);
+	planeTransform.position = ew::Vec3(3.75f, 0.0f, 0.0f);
 
 	resetCamera(camera,cameraController);
 

@@ -13,11 +13,42 @@ namespace nb {
 			for (int col = 0; col <= numSegments; col++) {
 				float theta = col * thetaStep;
 				ew::Vertex v;
-				v.pos.x = radius * sin(phi) * sin(theta);
+				v.pos.x = radius * cos(theta) * sin(phi);
 				v.pos.y = radius * cos(phi);
-				v.pos.z = radius * sin(phi) * cos(theta);
+				v.pos.z = radius * sin(theta) * sin(phi);
+				v.normal = ew::Normalize(v.pos);
+				v.uv.x = 1 - (col / (float)numSegments);
+				v.uv.y = 1 - (row / (float)numSegments);
 				mesh.vertices.push_back(v);
 			}
+		}
+
+		// Indices
+		float poleStart = 0;
+		float sideStart = numSegments + 1;
+		for (int i = 0; i < numSegments; i++) { // Top cap indices
+			mesh.indices.push_back(sideStart + i);
+			mesh.indices.push_back(poleStart + i);
+			mesh.indices.push_back(sideStart + i + 1);
+		}
+		float columns = numSegments + 1;
+		for (int row = 1; row < numSegments - 1; row++) { // Row indices
+			for (int col = 0; col < numSegments; col++) {
+				float start = row * columns + col;
+				mesh.indices.push_back(start);
+				mesh.indices.push_back(start + 1);
+				mesh.indices.push_back(start + columns);
+				mesh.indices.push_back(start + 1);
+				mesh.indices.push_back(start + columns + 1);
+				mesh.indices.push_back(start + columns);
+			}
+		}
+		poleStart = mesh.vertices.size() - numSegments - 1;
+		sideStart = poleStart - numSegments - 1;
+		for (int i = 0; i < numSegments; i++) { // Top cap indices
+			mesh.indices.push_back(sideStart + i + 1);
+			mesh.indices.push_back(poleStart + i);
+			mesh.indices.push_back(sideStart + i);
 		}
 
 		return mesh;
@@ -76,7 +107,6 @@ namespace nb {
 			v.uv = ew::Vec2(cos(theta), sin(theta));
 			mesh.vertices.push_back(v);
 		}
-		
 		mesh.vertices.push_back({ {0, botY, 0}, 0, 0}); // Bottom center
 
 		// Indices

@@ -24,6 +24,7 @@ int SCREEN_WIDTH = 1080;
 int SCREEN_HEIGHT = 720;
 
 float prevTime;
+int sphereNumSegments = 10, cylinderNumSegments = 20, planeNumSegments = 5;
 
 struct AppSettings {
 	const char* shadingModeNames[6] = { "Solid Color","Normals","UVs","Texture","Lit","Texture Lit"};
@@ -83,11 +84,11 @@ int main() {
 	//Create meta data
 	ew::MeshData cubeMeshData = ew::createCube(0.5f);
 	ew::Mesh cubeMesh(cubeMeshData);
-	ew::MeshData sphereMeshData = nb::createSphere(0.3f, 5);
+	ew::MeshData sphereMeshData = nb::createSphere(0.3f, sphereNumSegments);
 	ew::Mesh sphereMesh(sphereMeshData);
-	ew::MeshData cylinderMeshData = nb::createCylinder(0.5f, 0.3f, 20);
+	ew::MeshData cylinderMeshData = nb::createCylinder(0.5f, 0.3f, cylinderNumSegments);
 	ew::Mesh cylinderMesh(cylinderMeshData);
-	ew::MeshData planeMeshData = nb::createPlane(0.5f, 0.5f, 5);
+	ew::MeshData planeMeshData = nb::createPlane(0.5f, 0.5f, planeNumSegments);
 	ew::Mesh planeMesh(planeMeshData);
 
 	//Initialize transforms
@@ -183,6 +184,20 @@ int main() {
 					glEnable(GL_CULL_FACE);
 				else
 					glDisable(GL_CULL_FACE);
+			}
+			if (ImGui::CollapsingHeader("Bonus")) {
+				if (ImGui::SliderInt("Sphere Segments", &sphereNumSegments, 3, 50)) {
+					sphereMeshData = nb::createSphere(0.3f, sphereNumSegments);
+					sphereMesh = sphereMeshData;
+				}
+				if (ImGui::SliderInt("Cylinder Segments", &cylinderNumSegments, 3, 50)) {
+					cylinderMeshData = nb::createCylinder(0.5f, 0.3f, cylinderNumSegments);
+					cylinderMesh = cylinderMeshData;
+				}
+				if (ImGui::SliderInt("Plane Segments", &planeNumSegments, 1, 20)) {
+					planeMeshData = nb::createPlane(0.5f, 0.5f, planeNumSegments);
+					planeMesh = planeMeshData;
+				}
 			}
 			ImGui::End();
 			

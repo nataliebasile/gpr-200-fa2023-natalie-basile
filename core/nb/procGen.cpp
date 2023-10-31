@@ -30,7 +30,7 @@ namespace nb {
 		float topY = height / 2;
 		float botY = -topY;
 		
-		mesh.vertices.push_back({ {0, topY, 0}, 0, 0}); // Top center
+		mesh.vertices.push_back({ {0, topY, 0}, {0, 1, 0}, {0.5, 0.5} }); // Top center
 		float thetaStep = (2 * ew::PI) / numSegments;
 		for (int i = 0; i <= numSegments; i++) { // Top cap ring
 			float theta = i * thetaStep;
@@ -39,6 +39,8 @@ namespace nb {
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = topY;
 			v.normal = ew::Vec3(0, 1, 0);
+			v.uv = ew::Vec2(cos(theta), sin(theta));
+			v.uv = (v.uv + 1) / 2;
 			mesh.vertices.push_back(v);
 		}
 		for (int i = 0; i <= numSegments; i++) { // Top side ring
@@ -48,7 +50,7 @@ namespace nb {
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = topY;
 			v.normal = ew::Vec3(cos(theta), 0, sin(theta));
-			v.uv.x = cos(theta);
+			v.uv.x = i / (float)numSegments;
 			v.uv.y = 1;
 			mesh.vertices.push_back(v);
 		}
@@ -60,7 +62,7 @@ namespace nb {
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = botY;
 			v.normal = ew::Vec3(cos(theta), 0, sin(theta));
-			v.uv.x = cos(theta);
+			v.uv.x = i / (float)numSegments;
 			v.uv.y = 0;
 			mesh.vertices.push_back(v);
 		}
@@ -70,7 +72,8 @@ namespace nb {
 			v.pos.x = cos(theta) * radius;
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = botY;
-			v.normal = ew::Vec3(0, 1, 0);
+			v.normal = ew::Vec3(0, -1, 0);
+			v.uv = ew::Vec2(cos(theta), sin(theta));
 			mesh.vertices.push_back(v);
 		}
 		

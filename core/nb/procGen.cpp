@@ -6,11 +6,11 @@ namespace nb {
 		ew::MeshData mesh;
 
 		// Vertices
-		float thetaStep = (2 * ew::PI) / numSegments;
-		float phiStep = ew::PI / numSegments;
-		for (int row = 0; row <= numSegments; row++) {
+		float thetaStep = (2 * ew::PI) / (float)numSegments;
+		float phiStep = ew::PI / (float)numSegments;
+		for (int row = 0; row <= (float)numSegments; row++) {
 			float phi = row * phiStep;
-			for (int col = 0; col <= numSegments; col++) {
+			for (int col = 0; col <= (float)numSegments; col++) {
 				float theta = col * thetaStep;
 				ew::Vertex v;
 				v.pos.x = radius * cos(theta) * sin(phi);
@@ -146,12 +146,12 @@ namespace nb {
 		for (int row = 0; row <= subDivisions; row++) {
 			for (int col = 0; col <= subDivisions; col++) {
 				ew::Vertex v;
-				v.pos.x = width * (col / subDivisions);
+				v.pos.x = width * (col / (float)subDivisions);
 				v.pos.y = 0;
-				v.pos.z = -height * (row / subDivisions);
+				v.pos.z = -height * (row / (float)subDivisions);
 				v.normal = ew::Vec3(0, 1, 0);
-				v.uv.x = col / subDivisions;
-				v.uv.y = row / subDivisions;
+				v.uv.x = col / (float)subDivisions;
+				v.uv.y = row / (float)subDivisions;
 				mesh.vertices.push_back(v);
 			}
 		}

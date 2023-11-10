@@ -27,6 +27,18 @@ ew::Vec3 bgColor = ew::Vec3(0.1f);
 ew::Camera camera;
 ew::CameraController cameraController;
 
+struct Light {
+	ew::Vec3 position; // World space
+	ew::Vec3 color; // RGB
+};
+
+struct Material {
+	float ambientK; // Ambient coefficient (0-1)
+	float diffuseK; // Diffuse coefficient (0-1)
+	float specular; // Specular coefficient (0-1)
+	float shininess; // Shininess
+};
+
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -76,6 +88,18 @@ int main() {
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
 
+	//Create light(s)
+	Light light;
+	light.position = ew::Vec3(0.0, 2.0, 0.0);
+	light.color = ew::Vec3(1.0, 0.0, 0.0);
+
+	//Create material
+	Material mat;
+	mat.ambientK = 0.5;
+	mat.diffuseK = 1;
+	mat.specular = 0.5;
+	mat.shininess = 0.5;
+
 	resetCamera(camera,cameraController);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -112,6 +136,14 @@ int main() {
 		cylinderMesh.draw();
 
 		//TODO: Render point lights
+		shader.setVec3("_Light.position", light.position);
+		shader.setVec3("_Light.color", light.color);
+
+		// Render materials
+		shader.setFloat("_Material.ambientK", mat.ambientK);
+		shader.setFloat("_Material.diffuseK", mat.diffuseK);
+		shader.setFloat("_Material.specular", mat.specular);
+		shader.setFloat("_Material.shininess", mat.shininess);
 
 		//Render UI
 		{

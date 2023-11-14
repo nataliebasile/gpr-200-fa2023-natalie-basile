@@ -21,17 +21,21 @@ struct Light {
 
 uniform Material _Material;
 uniform Light _Light;
+uniform vec3 _CameraPos;
 uniform sampler2D _Texture;
 
 void main(){
 	vec3 normal = normalize(fs_in.WorldNormal);
 	vec3 ambient, diffuse, specular, color;
-	vec3 w = normalize(_Light.position * fs_in.WorldPos);
+	vec3 w = normalize(_Light.position - fs_in.WorldPos);
+	vec3 v = normalize(_CameraPos - fs_in.WorldPos);
+	vec3 h = normalize(w + v);
 
 	ambient = _Light.color * _Material.ambientK;
-	diffuse = _Light.color * dot(fs_in.WorldNormal * w);
+	diffuse = _Light.color * _Material.diffuseK * max(dot(w, normal), 0);
+	specular = _Light.color * _Material.specular * pow(max(dot(h, normal), 0), _Material.shininess);
 
-	color = diffuse;
+	color =  ambient + diffuse + specular;
 
 	FragColor = vec4(color, 1.0) * texture(_Texture, fs_in.UV);
 }

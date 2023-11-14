@@ -71,9 +71,10 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
+	ew::Shader unlitShader("assets.unlit.vert", "assets/unlit.frag");
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
-	//Create cube
+	//Create meshes
 	ew::Mesh cubeMesh(ew::createCube(1.0f));
 	ew::Mesh planeMesh(ew::createPlane(5.0f, 5.0f, 10));
 	ew::Mesh sphereMesh(ew::createSphere(0.5f, 64));
@@ -90,15 +91,18 @@ int main() {
 
 	//Create light(s)
 	Light light;
+	ew::Mesh lightMesh(ew::createSphere(0.2f, 10));
+	ew::Transform lightTransform;
 	light.position = ew::Vec3(0.0, 2.0, 0.0);
-	light.color = ew::Vec3(1.0, 0.0, 0.0);
+	lightTransform.position = light.position;
+	light.color = ew::Vec3(1.0, 1.0, 1.0);
 
 	//Create material
 	Material mat;
-	mat.ambientK = 0.5;
-	mat.diffuseK = 1;
-	mat.specular = 0.5;
-	mat.shininess = 0.5;
+	mat.ambientK = 0.1f;
+	mat.diffuseK = 0.5f;
+	mat.specular = 0.5f;
+	mat.shininess = 1.0f;
 
 	resetCamera(camera,cameraController);
 
@@ -135,15 +139,25 @@ int main() {
 		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
 		cylinderMesh.draw();
 
-		//TODO: Render point lights
-		shader.setVec3("_Light.position", light.position);
-		shader.setVec3("_Light.color", light.color);
-
+		
 		// Render materials
 		shader.setFloat("_Material.ambientK", mat.ambientK);
 		shader.setFloat("_Material.diffuseK", mat.diffuseK);
 		shader.setFloat("_Material.specular", mat.specular);
 		shader.setFloat("_Material.shininess", mat.shininess);
+
+		// Pass camera
+		shader.setVec3("_CameraPos", camera.position);
+
+		// Render point lights
+		shader.setVec3("_Light.position", light.position);
+		shader.setVec3("_Light.color", light.color);
+
+		unlitShader.use();
+		unlitShader.setMat4("_Model", lightTransform.getModelMatrix());
+		unlitShader.setMat4("_ViewProjection", camera.ProjectionMatrix()* camera.ViewMatrix());
+		unlitShader.setVec3("_Color", light.color);
+		lightMesh.draw();
 
 		//Render UI
 		{

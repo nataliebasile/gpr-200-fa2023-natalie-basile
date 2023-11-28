@@ -13,29 +13,34 @@ struct Material {
 	float specular; // Specular coefficient (0-1)
 	float shininess; // Shininess
 };
+uniform Material _Material;
 
 struct Light {
 	vec3 position;
 	vec3 color;
 };
+#define MAX_LIGHTS 4
+uniform Light _Lights[MAX_LIGHTS];
 
-uniform Material _Material;
-uniform Light _Light;
 uniform vec3 _CameraPos;
 uniform sampler2D _Texture;
 
 void main(){
-	vec3 normal = normalize(fs_in.WorldNormal);
-	vec3 ambient, diffuse, specular, color;
-	vec3 w = normalize(_Light.position - fs_in.WorldPos);
-	vec3 v = normalize(_CameraPos - fs_in.WorldPos);
-	vec3 h = normalize(w + v);
+	vec3 totalColor;
+	for (int i = 0; i < MAX_LIGHTS; i++) {
+		vec3 normal = normalize(fs_in.WorldNormal);
+		vec3 ambient, diffuse, specular, color;
+		vec3 w = normalize(_Lights[i].position - fs_in.WorldPos);
+		vec3 v = normalize(_CameraPos - fs_in.WorldPos);
+		vec3 h = normalize(w + v);
 
-	ambient = _Light.color * _Material.ambientK;
-	diffuse = _Light.color * _Material.diffuseK * max(dot(w, normal), 0);
-	specular = _Light.color * _Material.specular * pow(max(dot(h, normal), 0), _Material.shininess);
+		ambient = _Lights[i].color * _Material.ambientK;
+		diffuse = _Lights[i].color * _Material.diffuseK * max(dot(w, normal), 0);
+		specular = _Lights[i].color * _Material.specular * pow(max(dot(h, normal), 0), _Material.shininess);
 
-	color =  ambient + diffuse + specular;
+		color +=  ambient + diffuse + specular;
+		totalColor += color;
+	}
 
-	FragColor = vec4(color, 1.0) * texture(_Texture, fs_in.UV);
+	FragColor = vec4(totalColor, 1.0) * texture(_Texture, fs_in.UV);
 }

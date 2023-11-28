@@ -21,15 +21,34 @@ void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
 int SCREEN_WIDTH = 1080;
 int SCREEN_HEIGHT = 720;
 
+const int NUM_LIGHTS = 4;
+ew::Vec3 colors[] = {
+	(0.0f, 1.0f, 0.0f),
+	(1.0f, 0.0f, 0.0f),
+	(0.0f, 0.0f, 1.0f),
+	(0.0f, 0.0f, 0.0f)
+};
+
 float prevTime;
 ew::Vec3 bgColor = ew::Vec3(0.1f);
 
 ew::Camera camera;
 ew::CameraController cameraController;
 
+
 struct Light {
 	ew::Vec3 position; // World space
 	ew::Vec3 color; // RGB
+	ew::Mesh mesh; // Mesh
+};
+
+Light Lights [NUM_LIGHTS];
+ew::Transform LightTransforms[NUM_LIGHTS];
+ew::Vec3 lightPositions[] = {
+	(0.5f, 2.0f, 0.1f),
+	(0.5f, 2.0f, -0.2f),
+	(-0.5f, 2.0f, -0.3f),
+	(-0.5f, 2.0f, 0.4f)
 };
 
 struct Material {
@@ -71,7 +90,7 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
-	ew::Shader unlitShader("assets.unlit.vert", "assets/unlit.frag");
+	ew::Shader unlitShader("assets/unlit.vert", "assets/unlit.frag");
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
 	//Create meshes
@@ -89,13 +108,23 @@ int main() {
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
 
+	for (int i = 0; i < NUM_LIGHTS; i++) {
+		ew::Transform lightTransform;
+		LightTransforms[i] = lightTransform;
+	}
+
 	//Create light(s)
-	Light light;
-	ew::Mesh lightMesh(ew::createSphere(0.2f, 10));
-	ew::Transform lightTransform;
-	light.position = ew::Vec3(0.0, 2.0, 0.0);
-	lightTransform.position = light.position;
-	light.color = ew::Vec3(1.0, 1.0, 1.0);
+	for (int i = 0; i < NUM_LIGHTS; i++) {
+		Light light;
+		ew::Mesh lightMesh(ew::createSphere(0.2f, 10));
+		light.mesh = lightMesh;
+		ew::Transform lightTransform;
+		light.position = lightPositions[i].x;
+		LightTransforms[i].position = light.position;
+		light.color = colors[i];
+		Lights[i] = light;
+	}
+	
 
 	//Create material
 	Material mat;
@@ -150,14 +179,17 @@ int main() {
 		shader.setVec3("_CameraPos", camera.position);
 
 		// Render point lights
-		shader.setVec3("_Light.position", light.position);
-		shader.setVec3("_Light.color", light.color);
+		for (int i = 0; i < NUM_LIGHTS; i++) {
+			std::string light = "_Light[" + std::to_string(i) + "]";
+			shader.setVec3(light + ".position", Lights[i].position);
+			shader.setVec3(light + ".color", Lights[i].color);
 
-		unlitShader.use();
-		unlitShader.setMat4("_Model", lightTransform.getModelMatrix());
-		unlitShader.setMat4("_ViewProjection", camera.ProjectionMatrix()* camera.ViewMatrix());
-		unlitShader.setVec3("_Color", light.color);
-		lightMesh.draw();
+			unlitShader.use();
+			unlitShader.setMat4("_Model", LightTransforms[i].getModelMatrix());
+			unlitShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+			unlitShader.setVec3("_Color", Lights[i].color);
+			Lights[i].mesh.draw();
+		}
 
 		//Render UI
 		{
@@ -182,6 +214,17 @@ int main() {
 				ImGui::DragFloat("Sprint Speed", &cameraController.sprintMoveSpeed, 0.1f);
 				if (ImGui::Button("Reset")) {
 					resetCamera(camera, cameraController);
+				}
+			}
+			if (ImGui::CollapsingHeader("Lights")) {
+				for (int i = 0; i < NUM_LIGHTS; i++) {
+					std::string light = "_Light[" + std::to_string(i) + "]";
+					ImGui::PushID(i);
+					if (ImGui::CollapsingHeader("Light")) {
+						ImGui::DragFloat3("Position", &LightTransforms[i].position.x, 0.005f);
+						ImGui::DragFloat3("Color", &Lights[i].color.x, 0.005f);
+					}
+					ImGui::PopID();
 				}
 			}
 

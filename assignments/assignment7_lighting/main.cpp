@@ -23,10 +23,10 @@ int SCREEN_HEIGHT = 720;
 
 const int NUM_LIGHTS = 4;
 ew::Vec3 colors[] = {
-	(0.0f, 1.0f, 0.0f),
-	(1.0f, 0.0f, 0.0f),
-	(0.0f, 0.0f, 1.0f),
-	(0.0f, 0.0f, 0.0f)
+	{0.0f, 1.0f, 0.0f},
+	{1.0f, 0.0f, 0.0f},
+	{0.0f, 0.0f, 1.0f},
+	{1.0f, 1.0f, 1.0f}
 };
 
 float prevTime;
@@ -45,10 +45,10 @@ struct Light {
 Light Lights [NUM_LIGHTS];
 ew::Transform LightTransforms[NUM_LIGHTS];
 ew::Vec3 lightPositions[] = {
-	(0.5f, 2.0f, 0.1f),
-	(0.5f, 2.0f, -0.2f),
-	(-0.5f, 2.0f, -0.3f),
-	(-0.5f, 2.0f, 0.4f)
+	{0.5f, 2.0f, 0.5f},
+	{0.5f, 2.0f, -0.5f},
+	{-0.5f, 2.0f, -0.5f},
+	{-0.5f, 2.0f, 0.5f}
 };
 
 struct Material {
@@ -119,7 +119,7 @@ int main() {
 		ew::Mesh lightMesh(ew::createSphere(0.2f, 10));
 		light.mesh = lightMesh;
 		ew::Transform lightTransform;
-		light.position = lightPositions[i].x;
+		light.position = lightPositions[i];
 		LightTransforms[i].position = light.position;
 		light.color = colors[i];
 		Lights[i] = light;
@@ -155,6 +155,30 @@ int main() {
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 
+		// Render materials
+		shader.setFloat("_Material.ambientK", mat.ambientK);
+		shader.setFloat("_Material.diffuseK", mat.diffuseK);
+		shader.setFloat("_Material.specular", mat.specular);
+		shader.setFloat("_Material.shininess", mat.shininess);
+
+		// Pass camera
+		shader.setVec3("_CameraPos", camera.position);
+
+		// Render point lights
+		for (int i = 0; i < NUM_LIGHTS; i++) {
+			std::string light = "_Lights[" + std::to_string(i) + "]";
+			shader.setVec3(light + ".position", Lights[i].position);
+			shader.setVec3(light + ".color", Lights[i].color);
+
+			unlitShader.use();
+			unlitShader.setMat4("_Model", LightTransforms[i].getModelMatrix());
+			unlitShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+			unlitShader.setVec3("_Color", Lights[i].color);
+			Lights[i].mesh.draw();
+		}
+
+		shader.use();
+
 		//Draw shapes
 		shader.setMat4("_Model", cubeTransform.getModelMatrix());
 		cubeMesh.draw();
@@ -169,27 +193,6 @@ int main() {
 		cylinderMesh.draw();
 
 		
-		// Render materials
-		shader.setFloat("_Material.ambientK", mat.ambientK);
-		shader.setFloat("_Material.diffuseK", mat.diffuseK);
-		shader.setFloat("_Material.specular", mat.specular);
-		shader.setFloat("_Material.shininess", mat.shininess);
-
-		// Pass camera
-		shader.setVec3("_CameraPos", camera.position);
-
-		// Render point lights
-		for (int i = 0; i < NUM_LIGHTS; i++) {
-			std::string light = "_Light[" + std::to_string(i) + "]";
-			shader.setVec3(light + ".position", Lights[i].position);
-			shader.setVec3(light + ".color", Lights[i].color);
-
-			unlitShader.use();
-			unlitShader.setMat4("_Model", LightTransforms[i].getModelMatrix());
-			unlitShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
-			unlitShader.setVec3("_Color", Lights[i].color);
-			Lights[i].mesh.draw();
-		}
 
 		//Render UI
 		{

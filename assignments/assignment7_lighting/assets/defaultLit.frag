@@ -21,15 +21,16 @@ struct Light {
 };
 #define MAX_LIGHTS 4
 uniform Light _Lights[MAX_LIGHTS];
+//uniform int numLights;
 
 uniform vec3 _CameraPos;
 uniform sampler2D _Texture;
 
 void main(){
-	vec3 totalColor;
-	for (int i = 0; i < MAX_LIGHTS; i++) {
+	vec3 color, totalColor;
+	for (int i = 0; i < 4; i++) {
 		vec3 normal = normalize(fs_in.WorldNormal);
-		vec3 ambient, diffuse, specular, color;
+		vec3 ambient, diffuse, specular;
 		vec3 w = normalize(_Lights[i].position - fs_in.WorldPos);
 		vec3 v = normalize(_CameraPos - fs_in.WorldPos);
 		vec3 h = normalize(w + v);

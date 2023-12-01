@@ -154,6 +154,7 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, brickTexture);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+		shader.setInt("numLights", NUM_LIGHTS);
 
 		// Render materials
 		shader.setFloat("_Material.ambientK", mat.ambientK);
